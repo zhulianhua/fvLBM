@@ -1,0 +1,3 @@
+SOURCE=discreteVelocity/discreteVelocity.C ;  g++ -m64 -Dlinux64 -DWM_DP -Wall -Wextra -Wno-unused-parameter -Wold-style-cast -O3  -DNoRepository -ftemplate-depth-100 -I/home/lhzhu/OpenFOAM/OpenFOAM-2.3.0/src/finiteVolume/lnInclude -I/home/lhzhu/OpenFOAM/OpenFOAM-2.3.0/src/OpenFoam/lnInclude  -IlnInclude -I. -I/home/lhzhu/OpenFOAM/OpenFOAM-2.3.0/src/OpenFOAM/lnInclude -I/home/lhzhu/OpenFOAM/OpenFOAM-2.3.0/src/OSspecific/POSIX/lnInclude   -fPIC -c $SOURCE -o Make/linux64Gcc48DPOpt/discreteVelocity.o
+'/home/lhzhu/OpenFOAM/lhzhu-2.3.0/platforms/linux64Gcc48DPOpt/lib/libbkgFoam.so' is up to date.
+make: `/home/lhzhu/OpenFOAM/lhzhu-2.3.0/platforms/linux64Gcc48DPOpt/bin/bkgFoam' is up to date.
