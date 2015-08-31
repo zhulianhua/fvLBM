@@ -22,11 +22,13 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    dugksFoam
+    bkgFoam
 
 Description
-    Discrete Unified Gas Kinetic Scheme(Zhaoli Guo, Kun Xu) solver.
-    Lianhua Zhu
+    OpenFOAM inplementation of the 
+    "A. Bardow, I.V. Karlin, A.A. Gusev, General characteristic-based algorithm for
+    off-lattice Boltzmann simulations, EPL (Europhysics Letters), 75 (2006) 434."
+    Author: Lianhua Zhu (zhulianhua121@gmail.com or lhzhu@hust.edu.cn)
 
 \*---------------------------------------------------------------------------*/
 
