@@ -194,7 +194,7 @@ void Foam::discreteVelocity::initBoundaryField()
 void Foam::discreteVelocity::updateGvol()
 {
     //- get delta t
-    volScalarField gEq
+    static volScalarField gEq
     (
         IOobject
         (
