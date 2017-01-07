@@ -1,0 +1,8 @@
+*.o
+*.so
+**/linux**
+*.dep
+*.swp
+Make/linux**
+fvDVM/lnInclude/
+fvDVM/Make/linux**

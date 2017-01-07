@@ -252,6 +252,7 @@ void Foam::discreteVelocity::updateGsurf()
         if ( 
                gVol_.boundaryField()[patchi].type() != "empty" 
             && gVol_.boundaryField()[patchi].type() != "processor"
+            && gVol_.boundaryField()[patchi].type() != "cyclic"
             && gVol_.boundaryField()[patchi].type() != "symmetryPlane"
            ) // only for fixed gradient g/hBarPvol
         {
