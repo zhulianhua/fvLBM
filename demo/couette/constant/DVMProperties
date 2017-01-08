@@ -1,0 +1,28 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.2.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      DVMProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+fvDVMparas
+{
+    xiMax       xiMax [0 1 -1 0 0 0 0]    1.0;
+    xiMin       xiMin [0 1 -1 0 0 0 0]   -1.0;
+    nDV               3;       // Number of discrete velocity, shoud be 4*Z + 1 if using compound N-C quardrature
+}
+
+gasProperties
+{
+    nu           nu [0 2 -1 0 0 0 0] 0.0001;
+}
