@@ -342,14 +342,26 @@ void Foam::fvDVM::evolution()
     const fvsPatchField<vector>& CfPatch = mesh_.Cf().boundaryField()[1];
     updateGvol();
     updateGsurf();
+	// check the top face's gSurf
+	//Info << "DF at top faces " << endl;
+	//Info << mesh_.boundary()[0].name() << endl;
+	//forAll(DV_, dvi)
+	//{
+		//Info << "Dv[" << dvi <<"] " << DV_[dvi].gSurf().boundaryField()[0][0] << endl;
+	//}
     //Check gSurf at farField
-    forAll(DV_, dvi)
-    {
-        Info << "Dv[" << dvi <<"] " << DV_[dvi].gSurf().boundaryField()[1][10] << endl;
-    }
-    Info << "Probe point x, y, z" << CfPatch[faceCells[10]] << endl;
+    //forAll(DV_, dvi)
+    //{
+        //Info << "Dv[" << dvi <<"] " << DV_[dvi].gSurf().boundaryField()[1][10] << endl;
+    //}
+    //Info << "Probe point x, y, z" << CfPatch[faceCells[10]] << endl;
     updateGnewVol();
     updateMacroVol();
+	// check gVol near solid wall
+	//Info << "DF at 10th cell(the cell next to the top(bottom?) boundary: "<< endl;
+	//forAll(DV_, dvi)
+	//{
+		//Info << "Dv[" << dvi <<"] " << DV_[dvi].gVol()[9] << endl;
+	//}
 }
-
 // ************************************************************************* //

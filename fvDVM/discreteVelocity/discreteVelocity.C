@@ -253,6 +253,7 @@ void Foam::discreteVelocity::updateGsurf()
                gVol_.boundaryField()[patchi].type() != "empty" 
             && gVol_.boundaryField()[patchi].type() != "processor"
             && gVol_.boundaryField()[patchi].type() != "cyclic"
+            && gVol_.boundaryField()[patchi].type() != "processorCyclic"
             && gVol_.boundaryField()[patchi].type() != "symmetryPlane"
            ) // only for fixed gradient g/hBarPvol
         {
@@ -291,17 +292,25 @@ void Foam::discreteVelocity::updateGsurf()
     {
         label own = owner[facei];
         label nei = neighbour[facei];
-        if ((xii&Sf[facei]) >=  0) // comming from own
+        if ((xii&Sf[facei]) >=  VSMALL) // comming from own
         {
 
             iGsurf[facei] = iGvol[own] 
               + (iGgrad[own]&(Cf[facei] - C[own] - 0.5*xii*dt));
         }
         // Debug, no = 0, =0 put to > 0
-        else// if ((xii&Sf[facei]) < 0) // comming form nei
+        else if ((xii&Sf[facei]) < -VSMALL) // comming form nei
         {
             iGsurf[facei] = iGvol[nei]
               + (iGgrad[nei]&(Cf[facei] - C[nei] - 0.5*xii*dt));
+        }
+        else
+        {
+            iGsurf[facei] = 0.5 * 
+            (
+             iGvol[nei] + ((iGgrad[nei]) & (Cf[facei] - C[nei] - 0.5 * xii * dt))
+            +iGvol[own] + ((iGgrad[own]) & (Cf[facei] - C[own] - 0.5 * xii * dt))
+            ); 
         }
     }
 
@@ -310,7 +319,8 @@ void Foam::discreteVelocity::updateGsurf()
     {
         word type = gSurf_.boundaryField()[patchi].type();
         fvsPatchField<scalar>& gSurfPatch = gSurf_.boundaryField()[patchi];
-        //const fvPatchField<vector>& Upatch = dvm_.Uvol().boundaryField()[patchi];
+		const fvPatchField<vector>& Upatch = dvm_.Uvol().boundaryField()[patchi];
+		const fvPatchField<scalar>& rhoPatch = dvm_.rhoVol().boundaryField()[patchi];
         const fvsPatchField<vector>& SfPatch =
             mesh_.Sf().boundaryField()[patchi];
         const fvsPatchField<vector>& CfPatch =
@@ -332,7 +342,7 @@ void Foam::discreteVelocity::updateGsurf()
                 {
                     gSurfPatch[facei] = iGvol[faceCells[facei]] 
                       + ((iGgrad[faceCells[facei]])
-                       &(CfPatch[facei] - C[faceCells[facei]] - xii*dt));
+                       &(CfPatch[facei] - C[faceCells[facei]] - 0.5 * xii*dt));
                 //incoming and parallel to face, not changed.
                 }
             }
@@ -343,42 +353,69 @@ void Foam::discreteVelocity::updateGsurf()
             //check each boundary face in the patch
             forAll(gSurfPatch, facei)
             {
-                if ((xii&SfPatch[facei]) > 0 ) // outgoing
+                if ((xii&SfPatch[facei]) > VSMALL ) // outgoing
                 {
                     gSurfPatch[facei] = iGvol[faceCells[facei]] 
                       + ((iGgrad[faceCells[facei]])
-                       &(CfPatch[facei] - C[faceCells[facei]] - xii*dt));
+                       &(CfPatch[facei] - C[faceCells[facei]] - 0.5 * xii*dt));
+					//if(patchi == 0) Info << "IN" << endl;
                 //incoming and parallel to face, not changed.
                 }
                 //out or in ?
-                else //((xii&SfPatch[facei]) < 0 ) // incomming
+                else if((xii&SfPatch[facei]) < -VSMALL ) // incomming
                 {
                     gSurfPatch[facei] = ibGvol[faceCells[facei]] 
                       + ((ibGgrad[faceCells[facei]])
-                       &(CfPatch[facei] - C[faceCells[facei]] + xii*dt));
-                      //+ 2.0*weight_*(xii&Upatch[facei]);
-
+                       &(CfPatch[facei] - C[faceCells[facei]] + 0.5 * xii*dt))
+                      + 2.0*weight_*rhoPatch[facei]*(xii&Upatch[facei])/dvm_.CsSqr().value();
                 //incoming and parallel to face, not changed.
+					//if(patchi == 0) 
+					//{
+						//Info << "IN" << "  gSurfPatch[faceii] = " << gSurfPatch[facei] << endl;
+					//}
                 }
+				else // discrete velocity paralel to soid boundary, what to do?
+				{
+					//NOTE: What to do here?
+				}
             }
         }
 
-        else if (type == "processor") // parallel
+        else if (
+                 type == "processor"
+              || type == "cyclic"
+              || type == "processorCyclic") // coupled type boudnaries, (i.e., one patch linked to another patch)
         {
             forAll(gSurfPatch, facei)
             {
                 vector faceSf= SfPatch[facei];
-                if ((xii&faceSf) >  0 ) // outgoing
+                if ((xii&faceSf) >  VSMALL ) // outgoing
                 {
                     gSurfPatch[facei] = iGvol[faceCells[facei]] 
                       + ((iGgrad[faceCells[facei]])
-                       &(CfPatch[facei] - C[faceCells[facei]] - xii*dt));
+                       &(CfPatch[facei] - C[faceCells[facei]] - 0.5 * xii*dt));
                 } 
-                else //incomming from processor boundaryField
+                else if ((xii&faceSf) <  -VSMALL)//incomming from processor boundaryField
                 {
                     gSurfPatch[facei] = gVol_.boundaryField()[patchi][facei]
                       + ((gGrad_.boundaryField()[patchi][facei])
-                       &(CfPatch[facei] - mesh_.C().boundaryField()[patchi][facei] - xii*dt));
+                       &(CfPatch[facei] - mesh_.C().boundaryField()[patchi][facei] - 0.5 * xii*dt));
+                }
+                else
+                {
+					gSurfPatch[facei] = 0.5* 
+                    (
+						iGvol[faceCells[facei]] + 
+                        (
+					        (iGgrad[faceCells[facei]]) 
+			              & (CfPatch[facei] - C[faceCells[facei]] - 0.5*xii*dt)
+						)
+					  + gVol_.boundaryField()[patchi][facei] + 
+                        (
+					        (gGrad_.boundaryField()[patchi][facei]) 
+                          & (CfPatch[facei] - mesh_.C().boundaryField()[patchi][facei] - 0.5*xii*dt) 
+				        )
+					);
                 }
             }
         }
