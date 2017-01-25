@@ -362,7 +362,7 @@ void Foam::discreteVelocity::updateGsurf()
                 //incoming and parallel to face, not changed.
                 }
                 //out or in ?
-                else if((xii&SfPatch[facei]) < -VSMALL ) // incomming
+                else// if((xii&SfPatch[facei]) < -VSMALL ) // incomming
                 {
                     gSurfPatch[facei] = ibGvol[faceCells[facei]] 
                       + ((ibGgrad[faceCells[facei]])
@@ -374,10 +374,6 @@ void Foam::discreteVelocity::updateGsurf()
 						//Info << "IN" << "  gSurfPatch[faceii] = " << gSurfPatch[facei] << endl;
 					//}
                 }
-				else // discrete velocity paralel to soid boundary, what to do?
-				{
-					//NOTE: What to do here?
-				}
             }
         }
 
@@ -403,19 +399,19 @@ void Foam::discreteVelocity::updateGsurf()
                 }
                 else
                 {
-					gSurfPatch[facei] = 0.5* 
+                    gSurfPatch[facei] = 0.5* 
                     (
-						iGvol[faceCells[facei]] + 
+				        iGvol[faceCells[facei]] + 
                         (
-					        (iGgrad[faceCells[facei]]) 
-			              & (CfPatch[facei] - C[faceCells[facei]] - 0.5*xii*dt)
-						)
-					  + gVol_.boundaryField()[patchi][facei] + 
+                            (iGgrad[faceCells[facei]]) 
+                            & (CfPatch[facei] - C[faceCells[facei]] - 0.5*xii*dt)
+                        )
+                        + gVol_.boundaryField()[patchi][facei] + 
                         (
-					        (gGrad_.boundaryField()[patchi][facei]) 
-                          & (CfPatch[facei] - mesh_.C().boundaryField()[patchi][facei] - 0.5*xii*dt) 
-				        )
-					);
+                            (gGrad_.boundaryField()[patchi][facei]) 
+                            & (CfPatch[facei] - mesh_.C().boundaryField()[patchi][facei] - 0.5*xii*dt) 
+                        )
+                    );
                 }
             }
         }
